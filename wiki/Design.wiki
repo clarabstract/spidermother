@@ -1,8 +1,8 @@
 #summary Overview of spidermother design and architecture
+#labels Featured
 
 = Objectives = 
 
 HTML/Javascript based object inspector and console. Can be used to implement, at the very least, a basic JavaScript "debugger", and a GUI interface to ruby-debug. 
 
 If it succeeds in doing this, presumably it shouldn't be too hard to extend it for use with python, etc.
-
