@@ -6,3 +6,79 @@
 HTML/Javascript based object inspector and console. Can be used to implement, at the very least, a basic JavaScript "debugger", and a GUI interface to ruby-debug. 
 
 If it succeeds in doing this, presumably it shouldn't be too hard to extend it for use with python, etc.
+
+= Rough Idea =
+
+== Client/Server architecture ==
+
+*Client:* GUI for console / inspector. HTML/JS-based for starters. Could be Cocoa or XUL or whatever you want in the future.
+
+*Server:* The debug enviornment. Another browser (for JS). A ruby-debug server. 
+
+=== Example Session ===
+
+_Showing a console and evaluating some input:_
+
+  * *SERVER:* READY
+  * *CLIENT:* EVAL `"source code"`
+  * *SERVER:* REPLY `{json-encoded value}`
+
+
+_Request suggestions for tab-complete:_
+
+  * *CLIENT:* COMPLETIONS-FOR `"some.object.chain"`
+  * *SERVER:* REPLY `[completions]`
+
+
+_Inspecting CSS boxes on the client:_
+
+  * *SERVER:* DISPLAY `{json-encoded object}`
+
+
+=== Message System ===
+
+Flash XMLSOCKET (via Juggernaut), or Comet, with optional Ajax Queue fallback.
+
+Should be abstracted behind uniform API.
+
+Sending messages is just like AJAX:
+{{{
+request = Server.send("EVAL", source)
+request.onResponse = function() { .... }
+}}}
+
+Receiving messages is more interesting
+{{{
+Server.messageHandlers({
+ display: function() { ... }
+})
+}}}
+
+i.e. it's a pretty minimal request->response cycle, except either side can initiate.
+
+= APIs & Protocols =
+
+== Object Protocol == 
+
+Response evaluations and inspector data is sent as a JSON encoded object.
+
+All values will be sent as an object, including primitives, and all such objects will have a type field. The client may use the type field to provide specific rendering features.
+
+An object's references to other objects are sent as just that - references. When an object is inspected, a frozen copy of that object is kept in memory
+
+
+
+{{{
+json = {
+   id: 125125214
+   type: "Ruby",
+   class: "Pathname",
+   instance_variables: {
+     "@path": null,
+     "@real":  true
+   },
+   methods: {
+
+   }
+}
+}}}
